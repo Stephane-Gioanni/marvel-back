@@ -20,9 +20,10 @@ router.post("/user/signin", async (req, res) => {
 
       if (userCheck) {
         res.status(400).json({ message: "This email is already used" });
-      }
-      if (userNameCheck) {
+      } else if (userNameCheck) {
         res.status(400).json({ message: "This username is already used" });
+      } else if (req.fields.password !== req.fields.confirmPassword) {
+        res.status(400).json({ message: "Your password are different" });
       } else {
         const salt = uid2(16);
         const token = uid2(16);
@@ -40,7 +41,7 @@ router.post("/user/signin", async (req, res) => {
         res.json(newUser);
       }
     } else {
-      res.status(400).json({ message: "an error occured" });
+      res.status(400).json({ message: "Missing parameters" });
     }
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -51,25 +52,29 @@ router.post("/user/login", async (req, res) => {
   try {
     const userMailCheck = await User.findOne({ email: req.fields.email });
 
-    if (userMailCheck) {
-      const hashToVerify = SHA256(
-        req.fields.password + userMailCheck.salt
-      ).toString(encBase64);
+    if (req.fields.email && req.fields.pasword) {
+      if (userMailCheck) {
+        const hashToVerify = SHA256(
+          req.fields.password + userMailCheck.salt
+        ).toString(encBase64);
 
-      if (hashToVerify === userMailCheck.hash) {
-        res.json({
-          _id: userMailCheck._id,
-          email: userMailCheck.email,
-          username: userMailCheck.username,
-          favoritesComics: userMailCheck.favoritesComics,
-          favoritesCharacters: userMailCheck.favoritesCharacters,
-          token: userMailCheck.token,
-        });
+        if (hashToVerify === userMailCheck.hash) {
+          res.json({
+            _id: userMailCheck._id,
+            email: userMailCheck.email,
+            username: userMailCheck.username,
+            favoritesComics: userMailCheck.favoritesComics,
+            favoritesCharacters: userMailCheck.favoritesCharacters,
+            token: userMailCheck.token,
+          });
+        } else {
+          res.status(401).json({ message: "Wrong password" });
+        }
       } else {
-        res.status(401).json({ message: "Wrong password" });
+        res.status(400).json({ message: "This account does not exist" });
       }
     } else {
-      res.status(400).json({ message: "This account does not exist" });
+      res.status(400).json({ message: "Missing parameters" });
     }
   } catch (error) {
     res.status(400).json({ message: error.message });
