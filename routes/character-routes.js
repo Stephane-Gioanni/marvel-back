@@ -8,8 +8,8 @@ const axios = require("axios");
 const uid2 = require("uid2");
 const { MD5 } = require("crypto-js");
 
-const apiKey = "a8a20b565c67f5c5b6ab3395b84b7005";
-const privateKey = "f6a82d5ec180ab030d1b213106090a684248388e";
+const apiKey = process.env.apiKey;
+const privateKey = process.env.privateKey;
 const ts = uid2(16);
 const hash = MD5(ts + privateKey + apiKey);
 
