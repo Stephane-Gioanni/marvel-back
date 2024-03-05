@@ -52,7 +52,7 @@ router.post("/user/login", async (req, res) => {
   try {
     const userMailCheck = await User.findOne({ email: req.fields.email });
 
-    if (req.fields.email && req.fields.pasword) {
+    if (req.fields.email && req.fields.password) {
       if (userMailCheck) {
         const hashToVerify = SHA256(
           req.fields.password + userMailCheck.salt
